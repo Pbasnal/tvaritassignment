@@ -1,47 +1,22 @@
-import sys
-import logging
-from enum import Enum
-
-class SumOutput:
-    class StatusCode(Enum):
-        Success = 0
-        InputError = 1
-        InternalException = 2
-
-    def __init__(self, status : StatusCode, errorMessage : str, result : int):
-        self.Status = status
-        self.ErrorMessage = errorMessage
-        self.Result = result
+from SumEngine.SumOutput import SumOutput
 
 class SumOfNumbers:
-    def __init__(self, numberOfArgumentsToAccept, logger = None):
 
-        if logger == None:
-            logging.basicConfig(filename="sumofnumbers.log",
-                                format='%(asctime)s %(message)s',
-                                filemode='w')
-
-            self.logger = logging.getLogger()
-            self.logger.setLevel(logging.DEBUG)
-        else: 
-            self.logger = logger
+    ## Constructor - Takes number of integers to add and logger
+    def __init__(self, numberOfArgumentsToAccept, logger):
+        self.logger = logger
         self.NumberOfArgumentsToAccept = numberOfArgumentsToAccept
 
     def HowToUseTip(self):
-        howToUse = """
-        =============================================================
-        * How to use
-        * Provide 3 numbers which needs to be added. If any of the  *
-        * number belongs to the list [13, 14, 17, 18, 19] then that *
-        * number will be treated as 0.                              *
-        =============================================================
-        """
+        howToUse = "How to use - Provide 3 numbers which needs to be added. If any of the number belongs to the list [13, 14, 17, 18, 19] then that number will be treated as 0."
 
         return howToUse
 
     def ValidateNumberOfArguments(self, inputs):
-        # argv[0] is the name of the script
         totalNumberOfArguments = len(inputs)
+
+        # Number of arguments in the input should be equal to the 
+        # number of integers set in the constructor
         if totalNumberOfArguments != self.NumberOfArgumentsToAccept:
             return SumOutput(SumOutput.StatusCode.InputError, 
                     f'Exactly {self.NumberOfArgumentsToAccept} numbers are required', 
@@ -49,14 +24,25 @@ class SumOfNumbers:
         
         return SumOutput(SumOutput.StatusCode.Success, '', 0)
 
+    # Simple addition of 2 numbers.
+    # This function has been created to test the addition function of the class.
+    # Since all the addition happens with this code, testing this function will 
+    # ensure that addition will happen properly.
     def Add2Numbers(self, numa, numb):
         return numa + numb
 
+    # Function to check if a number is a teen or not.
     def IsTheNumberATeen(self, num):
         if num in [13, 14, 17, 18, 19]:
             return True
         return False
 
+    # This method takes in the an object and converts it to an integer.
+    # If the input object is not an integer, it'll return error.
+    # If the number is a 'Teen' then it returns 0
+    # Example input: 1   -> returns 1
+    #                '1' -> returns 1
+    #                'a' -> returns error
     def ConvertArgToInputNumber(self, arg):
         try:
             convertedNum = int(arg)
@@ -71,13 +57,17 @@ class SumOfNumbers:
                             f'All arguments should be numbers', 
                             0)
 
+    # This function takes the array of input objects and computes their sum.
+    # Example input: [1, 'a', '#$', '3'] -> returns error
+    #              : [1, '2', '3'] -> returns 6
     def AddNumbers(self, inputs):
         try:
             self.logger.debug("Input values " + str(inputs))
+
             validationResult = self.ValidateNumberOfArguments(inputs)
             if validationResult.Status != SumOutput.StatusCode.Success:
                 return validationResult    
-        
+
             sum = 0
             for i in range(self.NumberOfArgumentsToAccept):
                 conversionOutput = self.ConvertArgToInputNumber(inputs[i])
@@ -95,18 +85,3 @@ class SumOfNumbers:
 
         self.logger.debug(f"Result {sum}")
         return SumOutput(SumOutput.StatusCode.Success, '', sum)
-
-def main():
-    sumOfNumbers = SumOfNumbers(3)
-    answer = sumOfNumbers.AddNumbers(sys.argv[1:])
-
-    if answer.Status == SumOutput.StatusCode.Success:
-        print(answer)
-    elif answer.Status == SumOutput.StatusCode.InputError:
-        print(sumOfNumbers.HowToUseTip())
-    else:
-        print(answer.ErrorMessage)
-
-
-if __name__ == "__main__":
-    main()

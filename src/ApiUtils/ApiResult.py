@@ -1,3 +1,5 @@
+## This class is the object that helps in sharing results of 
+# various functions and classes used by the FlaskApi.
 class ApiResult:
     
     def __init__(self, isSuccess, errorCode, returnObject):

@@ -1,4 +1,4 @@
-from sum import SumOfNumbers
+from SumEngine.SumOfNumbers import SumOfNumbers
 from Common.LoggingSetup import SetupLogger
 from ApiUtils.InputHandlers import BasicInputValidationAndParsing
 from ComputeHandlers.SumHandler import ComputeSumOfInputNumbers
@@ -13,7 +13,7 @@ logger = None
 @app.route('/sum', methods=['PUT'])
 def SumOf3Numbers():
     try:
-        sumFinder = SumOfNumbers(3)
+        sumFinder = SumOfNumbers(3, logger)
         basicValidationResult = BasicInputValidationAndParsing(request.data, logger)
         
         if basicValidationResult.IsSuccess == False:

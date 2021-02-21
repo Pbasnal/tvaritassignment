@@ -1,5 +1,6 @@
 import logging
 
+## Method to initialize logger
 def SetupLogger():
     logging.basicConfig(filename="api.log",
                                 format='%(asctime)s %(message)s',
