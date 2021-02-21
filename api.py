@@ -12,7 +12,6 @@ logging.basicConfig(filename="api.log",
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-
 @app.route('/sum', methods=['PUT'])
 def summer():
     # try:
@@ -54,4 +53,4 @@ def ConvertInputToArray(input):
     return input.split(',')    
 
 if __name__ == '__main__':
-   app.run(debug=True)
+   app.run(host='0.0.0.0')
