@@ -1,56 +1,39 @@
+from sum import SumOfNumbers
+from Common.LoggingSetup import SetupLogger
+from ApiUtils.InputHandlers import BasicInputValidationAndParsing
+from ComputeHandlers.SumHandler import ComputeSumOfInputNumbers
+
 from flask import Flask, request, jsonify, abort
 import json
-import logging
-from sum import SumOfNumbers, SumOutput
+
 
 app = Flask(__name__)
-
-logging.basicConfig(filename="api.log",
-                            format='%(asctime)s %(message)s',
-                            filemode='w')
-
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger = None
 
 @app.route('/sum', methods=['PUT'])
-def summer():
-    # try:
-    input = str(request.data)
-    logger.debug("Input values " + input)
-    sumFinder = SumOfNumbers(3)
+def SumOf3Numbers():
+    try:
+        sumFinder = SumOfNumbers(3)
+        basicValidationResult = BasicInputValidationAndParsing(request.data, logger)
+        
+        if basicValidationResult.IsSuccess == False:
+            abort(basicValidationResult.ErrorCode, basicValidationResult.returnObject)
+        
+        result = ComputeSumOfInputNumbers(sumFinder, basicValidationResult.returnObject)
 
-    if len(input) <= 7:
-        abort(400, jsonify({
-                    "ErrorMessage": "Input is invalid ",
-                    "HowToUse": sumFinder.HowToUseTip()
-                }))
+        logger.debug(result.ToJson())
+        if result.IsSuccess:
+            return jsonify(result.returnObject)
+        
+        else:
+            abort(result.ErrorCode, result.returnObject)
 
-    inputNumbers = ConvertInputToArray(input)
+    except Exception as ex:
+        logger.exception("Exception")
+        raise
 
-    for num in inputNumbers:
-        logger.debug("num: " + str(num))
-
-    result = sumFinder.AddNumbers(inputNumbers)
-
-    if result.Status == SumOutput.StatusCode.Success:
-        return jsonify(result.Result)
-    elif result.Status == SumOutput.StatusCode.InputError: 
-        abort(400, str({
-                "ErrorMessage": result.ErrorMessage,
-                "HowToUse": sumFinder.HowToUseTip()
-            }))
-    else:
-        abort(400, result.ErrorMessage)
-
-    # except Exception as ex:
-    #     logger.exception("Exception ")
-    
-    # abort(500, "Failed to compute the result")
-
-def ConvertInputToArray(input):
-
-    input = str(input)[4: -3]
-    return input.split(',')    
 
 if __name__ == '__main__':
-   app.run(host='0.0.0.0')
+    logger = SetupLogger()
+    app.run(host='0.0.0.0', debug=True)
+
